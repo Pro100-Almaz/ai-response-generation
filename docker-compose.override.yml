@@ -1,10 +1,4 @@
 services:
-
-  db:
-    restart: "no"
-    ports:
-      - "5433:5432"
-
   adminer:
     restart: "no"
     ports:
