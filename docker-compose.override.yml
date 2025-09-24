@@ -37,6 +37,8 @@ services:
       SMTP_PORT: "1025"
       SMTP_TLS: "false"
       EMAILS_FROM_EMAIL: "noreply@example.com"
+      # Point to host DB by default for local dev; can be overridden via .env
+      POSTGRES_SERVER: "host.docker.internal"
       POSTGRES_PORT: "5432"
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"
@@ -50,6 +52,8 @@ services:
 
   prestart:
     environment:
+      # Point to host DB by default for local dev; can be overridden via .env
+      POSTGRES_SERVER: "host.docker.internal"
       POSTGRES_PORT: "5432"
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"
