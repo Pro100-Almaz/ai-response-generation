@@ -4,8 +4,6 @@ services:
     restart: always
     ports:
       - "8080:8080"
-    depends_on:
-      - db
     environment:
       - ADMINER_DESIGN=pepa-linha-dark
 
@@ -14,9 +12,6 @@ services:
     build:
       context: ./backend
     depends_on:
-      db:
-        condition: service_healthy
-        restart: true
       redis:
         condition: service_healthy
     command: bash scripts/prestart.sh
@@ -50,9 +45,6 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      db:
-        condition: service_healthy
-        restart: true
       prestart:
         condition: service_completed_successfully
       redis:
@@ -103,5 +95,4 @@ services:
       - redis-data:/data
 
 volumes:
-  app-db-data:
   redis-data:
