@@ -7,46 +7,12 @@ services:
     environment:
       - ADMINER_DESIGN=pepa-linha-dark
 
-  prestart:
-    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
-    build:
-      context: ./backend
-    depends_on:
-      redis:
-        condition: service_healthy
-    command: bash scripts/prestart.sh
-    env_file:
-      - .env
-    environment:
-      - DOMAIN=${DOMAIN}
-      - ENVIRONMENT=${ENVIRONMENT}
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
-      - SECRET_KEY=${SECRET_KEY?Variable not set}
-      - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
-      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
-      - POSTGRES_SERVER=${POSTGRES_SERVER}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
-      - SENTRY_DSN=${SENTRY_DSN}
-      - REDIS_HOST=redis
-      - REDIS_PORT=${REDIS_PORT-6379}
-      - REDIS_DB=${REDIS_DB-0}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     restart: always
     ports:
       - "8000:8000"
     depends_on:
-      prestart:
-        condition: service_completed_successfully
       redis:
         condition: service_healthy
     env_file:
@@ -81,6 +47,7 @@ services:
 
     build:
       context: ./backend
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--http", "h11"]
 
   redis:
     image: redis:7-alpine

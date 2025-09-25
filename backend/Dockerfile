@@ -17,6 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
 COPY ./scripts /app/scripts
+RUN chmod +x /app/scripts/*.sh || true
 COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
 COPY ./app /app/app
 
@@ -24,7 +25,9 @@ COPY ./app /app/app
 RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
 EXPOSE 8000
-# Use pure-Python HTTP implementation (h11). No fastapi CLI needed.
+# Use a start script that runs migrations before launching the server
+ENTRYPOINT ["bash", "scripts/start.sh"]
+# Default command starts the API
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--http", "h11"]
 # For dev auto-reload (requires watchfiles):
 # CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--http", "h11"]
