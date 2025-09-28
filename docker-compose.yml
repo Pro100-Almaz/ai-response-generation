@@ -24,16 +24,22 @@ services:
       - SECRET_KEY=${SECRET_KEY?Variable not set}
       - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
       - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD?Variable not set}
+
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL}
+      - SENTRY_DSN=${SENTRY_DSN}
+
+      - DB_WAIT_RETRIES=180
+      - RUN_DB_INIT=0
+        
       - POSTGRES_SERVER=${POSTGRES_SERVER}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
-      - SENTRY_DSN=${SENTRY_DSN}
+
       - REDIS_HOST=redis
       - REDIS_PORT=${REDIS_PORT-6379}
       - REDIS_DB=${REDIS_DB-0}
@@ -48,6 +54,7 @@ services:
     build:
       context: ./backend
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--http", "h11"]
+    networks: [apps-net]
 
   redis:
     image: redis:7-alpine
@@ -60,6 +67,11 @@ services:
       retries: 5
     volumes:
       - redis-data:/data
+    networks: [apps-net]
 
 volumes:
   redis-data:
+
+networks:
+  apps-net:
+    external: true
